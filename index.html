@@ -286,6 +286,9 @@
             Y: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAFSLFOD9VmKOmQqmZ3jPmHsk-EeNA1O4LRw&s",
             Z: "https://www.shutterstock.com/image-vector/letter-z-sign-language-gesture-260nw-1707942313.jpg"
         };
+                    function getSignImg(letter) {
+            return imagenes[letter];
+            }
         
         function showView(viewId) {
             document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
