@@ -367,87 +367,261 @@
         // --- MEDIAPIPE ---
         let hands;
         let camera;
-        let targetLetter = 'A';
+
+        // Solo 2 letras fijas para el MVP
+        const letrasVision = ['A'];
+        let indiceLetraActual = 0;
+        let targetLetter = letrasVision[indiceLetraActual];
+        let porcentajeActual = 0;
+        let señaDetectada = false;
 
         function startVisionLevel() {
             showView('vision-phase');
             document.getElementById('loading-overlay').classList.remove('hidden');
-            targetLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
+
+            indiceLetraActual = 0;
+            targetLetter = letrasVision[indiceLetraActual];
+
             document.getElementById('target-letter').innerText = targetLetter;
+
+            // Crear indicadores visuales
+            const feedback = document.getElementById('feedback-msg');
+            feedback.classList.remove('hidden');
+            feedback.innerHTML = `
+                <div class="text-center">
+                    <div class="text-2xl font-black mb-2">Haz la letra ${targetLetter}</div>
+                    <div id="porcentaje" class="text-4xl font-black text-[#EE6C4D]">0%</div>
+                    <div id="estado-seña" class="mt-3 text-lg font-bold text-slate-500">
+                        Esperando seña...
+                    </div>
+                </div>
+            `;
+
             initMediaPipe();
         }
 
         async function initMediaPipe() {
+
             const videoElement = document.getElementById('input-video');
             const canvasElement = document.getElementById('output-canvas');
             const canvasCtx = canvasElement.getContext('2d');
 
             hands = new Hands({
-                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+                locateFile: (file) =>
+                    `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
             });
 
             hands.setOptions({
                 maxNumHands: 1,
                 modelComplexity: 1,
-                minDetectionConfidence: 0.6,
-                minTrackingConfidence: 0.6
+                minDetectionConfidence: 0.7,
+                minTrackingConfidence: 0.7
             });
 
             hands.onResults((results) => {
+
                 canvasCtx.save();
-                canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-                
-                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-                    drawConnectors(canvasCtx, results.multiHandLandmarks[0], HAND_CONNECTIONS, {color: COLORS.light, lineWidth: 4});
-                    drawLandmarks(canvasCtx, results.multiHandLandmarks[0], {color: COLORS.accent, lineWidth: 1, radius: 4});
-                    evaluateGesture(results.multiHandLandmarks[0]);
+                canvasCtx.clearRect(
+                    0,
+                    0,
+                    canvasElement.width,
+                    canvasElement.height
+                );
+
+                if (
+                    results.multiHandLandmarks &&
+                    results.multiHandLandmarks.length > 0
+                ) {
+
+                    const landmarks = results.multiHandLandmarks[0];
+
+                    drawConnectors(
+                        canvasCtx,
+                        landmarks,
+                        HAND_CONNECTIONS,
+                        {
+                            color: COLORS.light,
+                            lineWidth: 4
+                        }
+                    );
+
+                    drawLandmarks(
+                        canvasCtx,
+                        landmarks,
+                        {
+                            color: COLORS.accent,
+                            lineWidth: 1,
+                            radius: 4
+                        }
+                    );
+
+                    evaluateGesture(landmarks);
                 }
+
                 canvasCtx.restore();
+
+                document
+                    .getElementById('loading-overlay')
+                    .classList.add('hidden');
             });
 
             camera = new Camera(videoElement, {
                 onFrame: async () => {
-                    await hands.send({image: videoElement});
-                    document.getElementById('loading-overlay').classList.add('hidden');
+                    await hands.send({
+                        image: videoElement
+                    });
                 },
                 width: 640,
                 height: 480
             });
-            camera.start();
-            cameraActive = true;
+
+            try {
+
+                await camera.start();
+
+                cameraActive = true;
+
+                console.log("Cámara iniciada");
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "No se pudo acceder a la cámara"
+                );
+            }
+            }
+
+
+        function dedoArriba(tip, pip, landmarks) {
+        return landmarks[tip].y < landmarks[pip].y;
+        }
+
+        function evaluarLetraA(landmarks) {
+
+            // Dedos cerrados
+            const indiceAbajo = landmarks[8].y > landmarks[6].y;
+            const medioAbajo = landmarks[12].y > landmarks[10].y;
+            const anularAbajo = landmarks[16].y > landmarks[14].y;
+            const meñiqueAbajo = landmarks[20].y > landmarks[18].y;
+
+            // Pulgar extendido hacia afuera
+            const pulgarFuera =
+                Math.abs(landmarks[4].x - landmarks[3].x) > 0.04;
+
+            let score = 0;
+
+            if (indiceAbajo) score += 20;
+            if (medioAbajo) score += 20;
+            if (anularAbajo) score += 20;
+            if (meñiqueAbajo) score += 20;
+            if (pulgarFuera) score += 20;
+
+            return score;
         }
 
         function evaluateGesture(landmarks) {
-            const feedback = document.getElementById('feedback-msg');
-            feedback.classList.remove('hidden');
-            
-            if (landmarks) {
-                feedback.innerText = "Manux está observando...";
-                feedback.className = "text-xl font-black py-4 px-6 rounded-2xl bg-[#E0E7FF] text-[#4338CA]";
-                
-                // Simulación de validación (el esqueleto detecta la presencia de mano)
-                // En un sistema real usaríamos landmarks[8] (dedo índice) etc.
-                if (landmarks[0].y < 0.8) {
-                    setTimeout(() => {
-                        if (cameraActive) {
-                            feedback.innerText = `¡Excelente! Seña ${targetLetter} detectada.`;
-                            feedback.className = "text-xl font-black py-4 px-6 rounded-2xl bg-[#D1FAE5] text-[#065F46]";
-                            
-                            setTimeout(() => {
-                                if(cameraActive) {
-                                    targetLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
-                                    document.getElementById('target-letter').innerText = targetLetter;
-                                }
-                            }, 1500);
-                        }
-                    }, 2500);
-                }
+
+            if (!cameraActive) return;
+
+            const porcentajeTexto =
+                document.getElementById('porcentaje');
+
+            const estadoTexto =
+                document.getElementById('estado-seña');
+
+            let score = 0;
+
+            if (targetLetter === 'A') {
+                score = evaluarLetraA(landmarks);
             }
+
+            if (targetLetter === 'B') {
+                score = evaluarLetraB(landmarks);
+            }
+
+            porcentajeActual = score;
+
+            porcentajeTexto.innerText = `${score}%`;
+
+            // Malo
+            if (score < 40) {
+
+                porcentajeTexto.className =
+                    'text-4xl font-black text-red-500';
+
+                estadoTexto.innerText =
+                    `Haz la letra ${targetLetter}`;
+            }
+
+            // Medio
+            else if (score < 80) {
+
+                porcentajeTexto.className =
+                    'text-4xl font-black text-yellow-500';
+
+                estadoTexto.innerText =
+                    'Casi correcto';
+            }
+
+            // Correcto
+            else {
+
+                porcentajeTexto.className =
+                    'text-4xl font-black text-green-500';
+
+                estadoTexto.innerHTML =
+                    '✔ Señal correcta';
+
+                // Evita múltiples ejecuciones
+                cameraActive = false;
+
+                setTimeout(() => {
+
+                    siguienteLetra();
+
+                    // Reactivar detección
+                    cameraActive = true;
+
+                }, 1500);
+            }
+        }
+
+        function siguienteLetra() {
+
+            stopCamera();
+
+            showResultOverlay(
+                true,
+                '¡Nivel completado!',
+                'Finalizar',
+                () => {
+
+                    showView('main-menu');
+                }
+            );
+        }
+
+        function finalizarNivelVision() {
+            stopCamera();
+
+            showResultOverlay(
+                true,
+                '¡Nivel completado!',
+                'Finalizar',
+                () => {
+                    showView('main-menu');
+                }
+            );
         }
 
         function stopCamera() {
             cameraActive = false;
-            if (camera) camera.stop();
+
+            if (camera) {
+                camera.stop();
+            }
         }
 
         window.onload = () => showView('main-menu');
