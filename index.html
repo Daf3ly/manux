@@ -250,8 +250,43 @@
             success: '#AFD0BF'
         };
 
-        const getSignImg = (letter) => `https://img.icons8.com/color/144/null/sign-language-${letter.toLowerCase()}.png`;
+        //const getSignImg = (letter) => `https://img.icons8.com/color/144/null/sign-language-${letter.toLowerCase()}.png`;
 
+               const imagenes = {
+
+            A: "https://i.pinimg.com/200x150/15/35/4c/15354cf0b58abb4b7f1047efeb240159.jpg",
+            B: "https://i.pinimg.com/originals/df/ab/12/dfab12165ca599ba653bc97b4da2255f.png",
+            C: "https://images.freeimages.com/images/premium/previews/9111/9111880-sign-language-letter-c.jpg",
+            D: "https://www.shutterstock.com/image-vector/sign-language-alphabetthe-letter-d-260nw-174091391.jpg",
+            E: "https://i.pinimg.com/originals/b9/2f/6c/b92f6c9e4cb4ce3ea38d2502986dae2b.png",
+
+            F: "https://centroderecursos.educarchile.cl/bitstreams/bcd85376-3713-4a2f-aed2-1a5817ae2884/download",
+            G: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsjGYEGqCvF5f31VXIXv6zgJAcl-AK1lLl8g&s",
+            H: "https://i.pinimg.com/736x/e6/bd/6e/e6bd6ef368c0b3719ea7d1b86f006d52.jpg",
+            I: "https://i.pinimg.com/originals/d1/7c/e1/d17ce12f4d17f81e91ea6e9d5463d0c6.png",
+            J: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWGlAdgCWUZ-DqrTYpHJzHeQ68iL3T9_d1gQ&s",
+
+            K: "https://i.pinimg.com/236x/14/70/9d/14709d10bde4db1d16c1d7891ccabe3f.jpg",
+            L: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-pX9-70PYyM3wnxuz8zj_oHWE0fi7Cav2qQ&s",
+            M: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYIL7JZ6WnoHE4TUA7Zs95MDJSFRk_CNX1vg&s",
+
+            N: "https://previews.123rf.com/images/alexfernandezch/alexfernandezch2010/alexfernandezch201000032/156575422-letter-n-of-the-alphabet-of-sign-language-isolated-on-white-background.jpg",
+            O: "https://i.pinimg.com/originals/a4/f8/ed/a4f8ed5934dc27fae82f36db9c959d66.png",
+            P: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxn6K_hoB66zhNjWKIjjTX6gugH56sjtBWgA&s",
+            Q: "https://centroderecursos.educarchile.cl/bitstreams/ff114402-d4b5-4bea-9f7b-33932e259840/download",
+            R: "https://i.pinimg.com/236x/ed/6a/b9/ed6ab96ee15a4acda9367438ac1d303a.jpg",
+
+            S: "https://i.pinimg.com/originals/04/7f/9f/047f9f255d8c69e12824f389969b78f3.png",
+            T: "https://www.idiomas.umich.mx/lsm/abcs/t.jpeg",
+            U: "https://i.pinimg.com/originals/f9/a0/7c/f9a07cbf48219b24260256c00de06aa6.png",
+            V: "https://i.pinimg.com/236x/34/bd/86/34bd86cf28898588d36e51d396a999c9.jpg",
+            W: "https://i.pinimg.com/236x/19/8d/ed/198ded5a6e4e6e1c3723b1a6e92a76df.jpg",
+
+            X: "https://i.pinimg.com/originals/40/4c/7c/404c7ccca0a7de25b1bd7094a821a096.png",
+            Y: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAFSLFOD9VmKOmQqmZ3jPmHsk-EeNA1O4LRw&s",
+            Z: "https://www.shutterstock.com/image-vector/letter-z-sign-language-gesture-260nw-1707942313.jpg"
+        };
+        
         function showView(viewId) {
             document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
             document.getElementById(viewId).classList.remove('hidden');
